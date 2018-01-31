@@ -22,8 +22,6 @@ package bot.checkpoint;
 import bot.RiskSystemState;
 import bot.data.PaymentRecord;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 /**
@@ -33,13 +31,11 @@ import java.util.HashMap;
  *
  * @author Jim van Eeden - jim@riddles.io
  */
-public class Check2 extends AbstractCheck {
+public class Check3 extends AbstractCheck {
 
-    private HashMap<String, LocalDateTime> timeRecord = new HashMap<>();
-    // block transaction on same card within the time limit below
-    private long minuteThreshold = 3;
+    private HashMap<String, String> timeRecord = new HashMap<>();
 
-    public Check2(int id) {
+    public Check3(int id) {
         super(id);
     }
 
@@ -54,34 +50,19 @@ public class Check2 extends AbstractCheck {
 
         System.err.println("Check2: Checking record " + record.getData("txid"));
 
-        //# reject repeated transactions by same card, defined as transaction within 3 minutes of another
+        //# reject transaction by different sanitized emails for same card number
+        //# reject repeated large transactions
+        //# reject card by different same email same shopper country but more than 3 issuer_country
+
 
         // create map with card number as key, transaction time as values
         // if record does not exist. add to map and allow to pass
         // if record exists, add time to list and check the time, if last transaction was 3 min ago. reject transaction
 
 
-        String card_number_hash = record.getData("card_number_hash");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime creation_dateTime = LocalDateTime.parse(record.getData("creation_date"), formatter);
 
-        if (timeRecord.get(card_number_hash) == null) {
-            timeRecord.put(card_number_hash, creation_dateTime);
-        } else {
-            // practically the record will be organized by time
-            // however the grading system sends in the record one by one so records will come in random order
-            // this will not block transaction that have gap days inserted in between
-
-            if (timeRecord.get(card_number_hash).minusMinutes(minuteThreshold).isBefore(creation_dateTime)  &&
-                    timeRecord.get(card_number_hash).plusMinutes(minuteThreshold).isAfter(creation_dateTime)){
-
-                timeRecord.put(card_number_hash, creation_dateTime);
-                return false;
-            }
-        }
         // If fraud, return false
 
         return true;
     }
-
 }

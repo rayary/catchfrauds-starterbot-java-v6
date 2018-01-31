@@ -21,7 +21,7 @@ package bot;
 
 import bot.action.Assessment;
 import bot.checkpoint.AbstractCheck;
-import bot.checkpoint.Check1;
+import bot.checkpoint.Check2;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,9 +44,9 @@ public class Bot {
         this.checks = new ArrayList<>();
 
         // TODO: Change these example checks for useful ones and add more checks
-        this.checks.add(new Check1(0));
-        //this.checks.add(new ExampleCheck1(0)); // ID needs to start with 0
-        //this.checks.add(new ExampleCheck2(1));
+        //this.checks.add(new Check1(0)); // ID needs to start with 0
+        this.checks.add(new Check2(0));
+
     }
 
     /**
