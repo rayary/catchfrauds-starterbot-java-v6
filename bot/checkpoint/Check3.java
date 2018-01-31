@@ -23,6 +23,7 @@ import bot.RiskSystemState;
 import bot.data.PaymentRecord;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * bot.checkpoint.ExampleCheck1
@@ -33,7 +34,7 @@ import java.util.HashMap;
  */
 public class Check3 extends AbstractCheck {
 
-    private HashMap<String, String> timeRecord = new HashMap<>();
+    private HashMap<String, String> emailRecord = new HashMap<>();
 
     public Check3(int id) {
         super(id);
@@ -41,25 +42,34 @@ public class Check3 extends AbstractCheck {
 
     @Override
     public String getDescription() {
-        return "Rejects repeated transaction by same card";
+        return "Rejects repeated transaction by different emails";
     }
 
     @Override
     public boolean approveRecord(RiskSystemState state) {
+        String regexe1 = "@.*$";        // pattern to be matched. (any character after @)
+        String regexe2 = "[^a-zA-Z0-9]";
+        String replacement = "";  // replacement pattern
+
         PaymentRecord record = state.getCurrentRecord();
 
-        System.err.println("Check2: Checking record " + record.getData("txid"));
+        System.err.println("Check3: Checking record " + record.getData("txid"));
 
-        //# reject transaction by different sanitized emails for same card number
-        //# reject repeated large transactions
-        //# reject card by different same email same shopper country but more than 3 issuer_country
+        // reject transaction where multiple email is associated with one card
 
+        String card_number_hash = record.getData("card_number_hash");
+        String shopper_email = record.getData("shopper_email");
 
-        // create map with card number as key, transaction time as values
-        // if record does not exist. add to map and allow to pass
-        // if record exists, add time to list and check the time, if last transaction was 3 min ago. reject transaction
+        Pattern pattern = Pattern.compile(regexe1, Pattern.CASE_INSENSITIVE);
+        String sanitized_addr  = pattern.matcher(shopper_email).replaceAll(replacement);
+        pattern = Pattern.compile(regexe2, Pattern.CASE_INSENSITIVE);
+        sanitized_addr = pattern.matcher(sanitized_addr).replaceAll(replacement);
 
-
+        if (emailRecord.get(card_number_hash) == null) {
+            emailRecord.put(card_number_hash, sanitized_addr);
+        }else{
+            return emailRecord.get(card_number_hash).equals(sanitized_addr);
+        }
 
         // If fraud, return false
 
