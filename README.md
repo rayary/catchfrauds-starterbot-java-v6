@@ -4,18 +4,18 @@ adyen.riddles.io/
 Analysis on training set data was performed using Python [Pandas](https://pandas.pydata.org/) library.
 - ## [Check 1](bot/checkpoint/Check1.java): Issuer Country vs Shopper Country
 
-  Of the 100 transactions in the training data set, 20% are classified as fraudulent. Of these 20%, 60% of them had shopper_country != issuer_country. For legitimate transactions, 6.25% of them had the above condition.
+  Of the 100 transactions in the training data set, 20% were classified as fraudulent. Of these 20%, 60% of them had shopper_country != issuer_country. For legitimate transactions, 6.25% of them had the above condition.
 
-  Check 1 filtered the above condition and marked fraud on transactions where the amount > 2000. This amount was chosen so that >75% of different country fraud transaction can be blocked while keeping the false positive to <3% (50% * 6.25%).
+  Check 1 classified the above condition and marked fraud on transactions where the amount >2000. This amount was chosen so that >75% of different country fraud transaction can be blocked while keeping the false positive to <3% (50% * 6.25%).
   ```  
   legit_diff_country['amount'].describe()
   ```
   | | |
-  |---| --- 
+  |---| ---
   |count|5.000000
   |mean|1413.200000
   |std|1143.962281
-  |min|255.000000 
+  |min|255.000000
   |25%|376.000000
   |50%|1442.000000
   |75%|2012.000000
@@ -25,7 +25,7 @@ Analysis on training set data was performed using Python [Pandas](https://pandas
   fraud_diff_country['amount'].describe()
   ```
   |||
-  |---|--- 
+  |---|---
   |count|12.000000
   |mean|8273.583333
   |std|9606.352533
@@ -35,9 +35,9 @@ Analysis on training set data was performed using Python [Pandas](https://pandas
   |75%|13937.250000
   |max|29290.000000
   |Name: amount|dtype: float64
-  
+
 - ## [Check 2](bot/checkpoint/Check2.java): Repeated Transactions
-  Group by shopper_email showed a fraud behavior of performing multiples transactions by the same card within minutes of each other. This pattern was not observed in legitimate transactions. Check 2 will record the time of transaction by card_number_hash and reject subsequent transactions that are performed within minutes of each other.
+  Group by shopper_email classified a fraud behavior of performing multiples transactions by the same card within minutes of each other. This pattern was not observed in legitimate transactions. Check 2 will record the time of transaction by card_number_hash and reject subsequent transactions that are performed within minutes of each other.
   ```
   fraud_same_country.sort_values(['shopper_email', 'txid'])
   ```
@@ -51,7 +51,7 @@ Analysis on training set data was performed using Python [Pandas](https://pandas
   |62|US|MCCREDIT|723703|999|USD|US|2014-02-26 14:24:25|lizeth-reichert@comcast.net|card978104|True
 
 - ## [Check 3](bot/checkpoint/Check3.java): User Check
-  Another pattern noticed was that in legitimate transactions the shopper_email are closely related. Where for fraudulent transactions the same card can be associated with widely different addresses. Check 3 will remove domain names, underscore, and periods from shopper_email and see if the address is the same as previous transactions.
+  Another pattern noticed was that in legitimate transactions the shopper_email were closely related. Where for fraudulent transactions the same card can be associated with widely different addresses. Check 3 will remove domain names, underscore, and periods from shopper_email and see if the address is the same as ones used in previous transactions.
   ```
   legit.loc[legit['card_number_hash'] == 'card840790']
   ```
@@ -66,7 +66,7 @@ Analysis on training set data was performed using Python [Pandas](https://pandas
   |87|AE|MCDEBIT|458187|4715|AED|AE|2014-03-09 01:40:27|carola.giron@bellsouth.net|card840790|False
 
 - ## [Check 4](bot/checkpoint/Check4.java): Multiple Issuer Country
-  In fradulant transactions, the same shopper_email was seen using cards by different issuer_country, a pattern not found in legitimate transactions. However this check didn't have any effect on improving the result for assessment set.
+  In fraudulent transactions, the same shopper_email used cards by different issuer_country, a pattern not found in legitimate transactions. However this check didn't have any effect on improving the result for assessment set.
   
   ||||||||||||
   |---|---|---|---|---|---|---|---|---|---|---|
@@ -74,8 +74,7 @@ Analysis on training set data was performed using Python [Pandas](https://pandas
   |75|AE|VISACLASSIC|789249|1167|AED|NO|2014-02-15 23:42:49|loraine-parrott@aol.com|card589253|True
   |56|FR|MCCREDIT|347045|1447|EUR|NO|2014-02-28 09:48:54|loraine-parrott@aol.com|card765633|True
   |44|ES|MCDEBIT|757660|635|EUR|NO|2014-02-17 21:55:47|loraine-parrott@aol.com|card801330|True
-  
+
 ## Overall Result
 Best assessed: 35 (53%)
 Best tested: 35 (74%)
-
