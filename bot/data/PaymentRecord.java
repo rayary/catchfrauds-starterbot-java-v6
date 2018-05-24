@@ -19,7 +19,10 @@
 
 package bot.data;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * PaymentRecord
@@ -34,12 +37,23 @@ import java.util.HashMap;
  */
 public class PaymentRecord {
 
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private String filterRemoveDomain = "@.*$";        // pattern to be matched. (any character after @)
+    private String filterLocalPart = "[^a-zA-Z0-9]";
+    private String replacement = "";  // replacement pattern
+    private Pattern patternRemoveDomain, patternLocalPart;
+
     private HashMap<String, String> stringValueMap;
     private double amount;
+    private LocalDateTime creationDate;
+    private String localPart;
 
     public PaymentRecord(String[] recordFormat, String record) throws InstantiationError {
         this.stringValueMap  = new HashMap<>();
         String[] values = record.split(",");
+
+        patternRemoveDomain = Pattern.compile(filterRemoveDomain, Pattern.CASE_INSENSITIVE);
+        patternLocalPart = Pattern.compile(filterLocalPart, Pattern.CASE_INSENSITIVE);
 
         if (recordFormat.length != values.length) {
             throw new InstantiationError("Record does not match given format");
@@ -56,6 +70,15 @@ public class PaymentRecord {
             switch (key) {
                 case "amount":
                     this.amount = Double.parseDouble(value);
+                    break;
+                case "creation_date":
+                    this.creationDate = LocalDateTime.parse(value, formatter);
+                    break;
+                case "shopper_email":
+                    // Probably exists a cleaner filter than matching twice...
+                    String sanitized_addr  = patternRemoveDomain.matcher(value).replaceAll(replacement);
+                    sanitized_addr = patternLocalPart.matcher(sanitized_addr).replaceAll(replacement);
+                    this.localPart = sanitized_addr;
                     break;
                 // case "xxx": You can add more value parsing here
             }
@@ -74,6 +97,12 @@ public class PaymentRecord {
     }
 
     // TODO: Parse the record values (such as date, etc.), which are now just strings
+    public LocalDateTime getCreationDate() {
+        return this.creationDate;
+    }
 
     // TODO: Implement useful methods to perform calculations on the record data
+    public String getEmailLocalPart() {
+        return this.localPart;
+    }
 }

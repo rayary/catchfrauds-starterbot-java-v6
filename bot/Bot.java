@@ -43,10 +43,15 @@ public class Bot {
         this.checks = new ArrayList<>();
 
         // TODO: Change these example checks for useful ones and add more checks
-        this.checks.add(new Check1(0)); // ID needs to start with 0
+        /*this.checks.add(new Check1(0)); // ID needs to start with 0
         this.checks.add(new Check2(1));
         this.checks.add(new Check3(2));
-        this.checks.add(new Check4(3));
+        this.checks.add(new Check4(3));*/
+
+        this.checks.add(new ComplexShopperCheck(0));
+        this.checks.add(new FrequencyCheck(1));
+        this.checks.add(new HighRiskCountryCheck(2));
+        this.checks.add(new TooManyCountriesCheck(3));
 
     }
 
